@@ -5,6 +5,7 @@ import React from 'react';
 
 import CompassIcon from '@components/compass_icon';
 import {View as ViewConstants} from '@constants';
+import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 
 type Props = {
     theme: Theme;
@@ -16,6 +17,7 @@ const SystemAvatar = ({theme}: Props) => {
             name='mattermost'
             color={theme.centerChannelColor}
             size={ViewConstants.PROFILE_PICTURE_SIZE}
+            style={{ opacity: 0 }}
         />
     );
 };
