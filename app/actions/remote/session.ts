@@ -111,7 +111,7 @@ export const fetchSessions = async (serverUrl: string, currentUserId: string) =>
 
 export const login = async (serverUrl: string, {ldapOnly = false, loginId, mfaToken, password, config, serverDisplayName}: LoginArgs): Promise<LoginActionResponse> => {
     let deviceToken;
-    let voipDeviceToken
+    let voipDeviceToken;
     let user: UserProfile;
 
     const appDatabase = DatabaseManager.appDatabase?.database;
@@ -123,10 +123,6 @@ export const login = async (serverUrl: string, {ldapOnly = false, loginId, mfaTo
         const client = NetworkManager.getClient(serverUrl);
         deviceToken = await getDeviceToken();
         voipDeviceToken = await getVoipDeviceToken();
-        console.log("------------------------------------")
-        console.log('deviceToken', deviceToken);
-        console.log('voipDeviceToken', voipDeviceToken);
-        console.log("------------------------------------")
         user = await client.login(
             loginId,
             password,
