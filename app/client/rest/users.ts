@@ -17,7 +17,7 @@ export interface ClientUsersMix {
     getKnownUsers: () => Promise<string[]>;
     sendPasswordResetEmail: (email: string) => Promise<any>;
     setDefaultProfileImage: (userId: string) => Promise<any>;
-    login: (loginId: string, password: string, token?: string, deviceId?: string, ldapOnly?: boolean) => Promise<UserProfile>;
+    login: (loginId: string, password: string, token?: string, deviceId?: string, voipDeviceId?: string, ldapOnly?: boolean) => Promise<UserProfile>;
     loginById: (id: string, password: string, token?: string, deviceId?: string) => Promise<UserProfile>;
     logout: () => Promise<any>;
     getProfiles: (page?: number, perPage?: number, options?: Record<string, any>) => Promise<UserProfile[]>;
@@ -115,9 +115,10 @@ const ClientUsers = <TBase extends Constructor<ClientBase>>(superclass: TBase) =
         );
     };
 
-    login = async (loginId: string, password: string, token = '', deviceId = '', ldapOnly = false) => {
+    login = async (loginId: string, password: string, token = '', deviceId = '', voipDeviceId = '', ldapOnly = false) => {
         const body: any = {
             device_id: deviceId,
+            voip_device_id: voipDeviceId,
             login_id: loginId,
             password,
             token,

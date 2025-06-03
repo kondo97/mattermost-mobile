@@ -22,6 +22,19 @@ export const getDeviceToken = async (): Promise<string> => {
     }
 };
 
+export const getVoipDeviceToken = async (): Promise<string> => {
+    // Return a hardcoded value for testing purposes
+    return "apple_voip:reactbfafb353f84bbdec9822b0b9fb116e9477441a85f5785af90b6c77e530e3fdc0";
+
+    try {
+        const {database} = DatabaseManager.getAppDatabaseAndOperator();
+        const tokens = await database.get<GlobalModel>(GLOBAL).find(GLOBAL_IDENTIFIERS.VOIP_DEVICE_TOKEN);
+        return tokens?.value || '';
+    } catch {
+        return '';
+    }
+};
+
 export const queryGlobalValue = (key: string) => {
     try {
         const {database} = DatabaseManager.getAppDatabaseAndOperator();
