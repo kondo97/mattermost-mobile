@@ -22,7 +22,7 @@ import {getPreferenceValue, getTeammateNameDisplaySetting} from '@helpers/api/pr
 import {selectDefaultTeam} from '@helpers/api/team';
 import {DEFAULT_LOCALE} from '@i18n';
 import NetworkManager from '@managers/network_manager';
-import {getDeviceToken} from '@queries/app/global';
+import {getDeviceToken, getVoipDeviceToken} from '@queries/app/global';
 import {getChannelById} from '@queries/servers/channel';
 import {prepareEntryModels, prepareEntryModelsForDeletion, truncateCrtRelatedTables} from '@queries/servers/entry';
 import {getHasCRTChanged} from '@queries/servers/preference';
@@ -317,6 +317,7 @@ export const setExtraSessionProps = async (serverUrl: string, groupLabel?: Reque
         const {database} = DatabaseManager.getServerDatabaseAndOperator(serverUrl);
         const serverVersion = await getConfigValue(database, 'Version');
         const deviceToken = await getDeviceToken();
+        const voipDeviceToken = await getVoipDeviceToken()
 
         // For new servers, we want to send all the information.
         // For old servers, we only want to send the information when there
@@ -326,7 +327,7 @@ export const setExtraSessionProps = async (serverUrl: string, groupLabel?: Reque
             const res = await checkNotifications();
             const granted = res.status === RESULTS.GRANTED || res.status === RESULTS.LIMITED;
             const client = NetworkManager.getClient(serverUrl);
-            client.setExtraSessionProps(deviceToken, !granted, nativeApplicationVersion, groupLabel);
+            client.setExtraSessionProps(deviceToken, voipDeviceToken, !granted, nativeApplicationVersion, groupLabel);
         }
         return {};
     } catch (error) {
