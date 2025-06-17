@@ -10,7 +10,7 @@ import {SYSTEM_IDENTIFIERS} from '@constants/database';
 import DatabaseManager from '@database/manager';
 import PushNotifications from '@init/push_notifications';
 import NetworkManager from '@managers/network_manager';
-import {getDeviceToken} from '@queries/app/global';
+import {getDeviceToken, getVoipDeviceToken} from '@queries/app/global';
 import {getServerDisplayName} from '@queries/app/servers';
 import {getCurrentUserId, getExpiredSession} from '@queries/servers/system';
 import {getCurrentUser} from '@queries/servers/user';
@@ -111,6 +111,7 @@ export const fetchSessions = async (serverUrl: string, currentUserId: string) =>
 
 export const login = async (serverUrl: string, {ldapOnly = false, loginId, mfaToken, password, config, serverDisplayName}: LoginArgs): Promise<LoginActionResponse> => {
     let deviceToken;
+    let voipDeviceToken;
     let user: UserProfile;
 
     const appDatabase = DatabaseManager.appDatabase?.database;
@@ -121,11 +122,13 @@ export const login = async (serverUrl: string, {ldapOnly = false, loginId, mfaTo
     try {
         const client = NetworkManager.getClient(serverUrl);
         deviceToken = await getDeviceToken();
+        voipDeviceToken = await getVoipDeviceToken();
         user = await client.login(
             loginId,
             password,
             mfaToken,
             deviceToken,
+            voipDeviceToken,
             ldapOnly,
         );
 

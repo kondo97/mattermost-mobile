@@ -17,7 +17,7 @@ export interface ClientUsersMix {
     getKnownUsers: () => Promise<string[]>;
     sendPasswordResetEmail: (email: string) => Promise<any>;
     setDefaultProfileImage: (userId: string) => Promise<any>;
-    login: (loginId: string, password: string, token?: string, deviceId?: string, ldapOnly?: boolean) => Promise<UserProfile>;
+    login: (loginId: string, password: string, token?: string, deviceId?: string, voipDeviceId?: string, ldapOnly?: boolean) => Promise<UserProfile>;
     loginById: (id: string, password: string, token?: string, deviceId?: string) => Promise<UserProfile>;
     logout: () => Promise<any>;
     getProfiles: (page?: number, perPage?: number, options?: Record<string, any>) => Promise<UserProfile[]>;
@@ -38,7 +38,7 @@ export interface ClientUsersMix {
     autocompleteUsers: (name: string, teamId: string, channelId?: string, options?: Record<string, any>) => Promise<{users: UserProfile[]; out_of_channel?: UserProfile[]}>;
     getSessions: (userId: string) => Promise<Session[]>;
     checkUserMfa: (loginId: string) => Promise<{mfa_required: boolean}>;
-    setExtraSessionProps: (deviceId: string, notificationsEnabled: boolean, version: string | null, groupLabel?: RequestGroupLabel) => Promise<{}>;
+    setExtraSessionProps: (deviceId: string, voipDeviceToken: string, notificationsEnabled: boolean, version: string | null, groupLabel?: RequestGroupLabel) => Promise<{}>;
     searchUsers: (term: string, options: SearchUserOptions) => Promise<UserProfile[]>;
     getStatusesByIds: (userIds: string[]) => Promise<UserStatus[]>;
     getStatus: (userId: string, groupLabel?: RequestGroupLabel) => Promise<UserStatus>;
@@ -115,9 +115,10 @@ const ClientUsers = <TBase extends Constructor<ClientBase>>(superclass: TBase) =
         );
     };
 
-    login = async (loginId: string, password: string, token = '', deviceId = '', ldapOnly = false) => {
+    login = async (loginId: string, password: string, token = '', deviceId = '', voipDeviceId = '', ldapOnly = false) => {
         const body: any = {
             device_id: deviceId,
+            voip_device_id: voipDeviceId,
             login_id: loginId,
             password,
             token,
@@ -178,6 +179,7 @@ const ClientUsers = <TBase extends Constructor<ClientBase>>(superclass: TBase) =
     };
 
     getProfilesByIds = async (userIds: string[], options = {}, groupLabel?: RequestGroupLabel) => {
+        console.log('groupLabel', groupLabel);
         return this.doFetch(
             `${this.getUsersRoute()}/ids${buildQueryString(options)}`,
             {method: 'post', body: userIds, groupLabel},
@@ -332,13 +334,14 @@ const ClientUsers = <TBase extends Constructor<ClientBase>>(superclass: TBase) =
         );
     };
 
-    setExtraSessionProps = async (deviceId: string, deviceNotificationDisabled: boolean, version: string | null, groupLabel?: RequestGroupLabel) => {
+    setExtraSessionProps = async (deviceId: string, voipDeviceId: string, deviceNotificationDisabled: boolean, version: string | null, groupLabel?: RequestGroupLabel) => {
         return this.doFetch(
             `${this.getUsersRoute()}/sessions/device`,
             {
                 method: 'put',
                 body: {
                     device_id: deviceId,
+                    voip_device_id: voipDeviceId,
                     device_notification_disabled: deviceNotificationDisabled ? 'true' : 'false',
                     mobile_version: version || '',
                 },
